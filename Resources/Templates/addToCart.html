@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
+<div style = "float:left;width 50%;">
 <h1>KelSave!</h1>
 <span class = "note">get cheap stuff for cheap</span>
 <br>
@@ -19,7 +20,9 @@
     <input type="text" placeholder="Price of the item" name="price"/><br>
     <button type="submit">Add to Cart</button>
 </form>
+</div>
 <br>
+<div style="float:right; width:50%;">
 <span>Items currently in your cart:</span>
 <ul>
     {{#item}}
@@ -28,6 +31,6 @@
     {{/item}}
 
 </ul>
-
+</div>
 </body>
 </html>
