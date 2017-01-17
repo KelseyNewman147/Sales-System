@@ -70,6 +70,26 @@ public class Main {
         return userId;
     }
 
+    private static List<Item> getItemsforCurrentOrder(Connection connection, Integer orderId) throws SQLException {
+        List<Item> items = new ArrayList<>();
+
+        if (orderId != null) {
+            PreparedStatement stmt = connection.prepareStatement("select * from items where order_id = ?");
+            stmt.setInt(1, orderId);
+
+            ResultSet results = stmt.executeQuery();
+
+            while (results.next()) {
+                String name = results.getString("name");
+                Integer quantity = results.getInt("quantity");
+                Double price = results.getDouble("price");
+                Integer currentOrder = orderId;
+                items.add(new Item(name, quantity, price, currentOrder));
+            }
+        }
+        return items;
+    }
+
 
     public static void main(String[] args) throws SQLException{
         Server.createWebServer().start();
@@ -77,7 +97,6 @@ public class Main {
         User.createTable(conn);
         Order.createTable(conn);
         Item.createTable(conn);
-   //     innerJoins(conn);
 
         Spark.staticFileLocation("/Templates");
 
@@ -139,8 +158,14 @@ public class Main {
             Session session = req.session();
             User user = getUserById(conn, session.attribute("user_id"));
             req.session().attribute("order_id");
-
-            model.put("user", user);
+            Order currentOrder = Order.getLatestCurrentOrder(conn, user.getId());
+            if (currentOrder == null) {
+                Order.createOrder(conn, user.getId());
+            } else {
+                List items = getItemsforCurrentOrder(conn, currentOrder.getId());
+                model.put("item", items);
+            }
+                model.put("user", user);
 
             return new ModelAndView(model, "addToCart.html");
         }), new MustacheTemplateEngine());

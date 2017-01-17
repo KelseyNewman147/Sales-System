@@ -7,7 +7,9 @@
 </head>
 <body>
 <h1>KelSave!</h1>
-<h2>get cheap stuff for cheap</h2>
+<span class = "note">get cheap stuff for cheap</span>
+<br>
+<br>
 {{#user}}
 <span>Hello, {{name}}!</span>
 {{/user}}
@@ -17,14 +19,12 @@
     <input type="text" placeholder="Price of the item" name="price"/><br>
     <button type="submit">Add to Cart</button>
 </form>
+<br>
+<span>Items currently in your cart:</span>
 <ul>
     {{#item}}
-<label>Item:</label>
 <li>{{name}}</li>
-<label>Quantity:</label>
-<li>{{quantity}}</li>
-<label>Price:</label>
-<li>{{price}}</li>
+<span>Quantity: {{quantity}}, Price: ${{price}} each</span>
     {{/item}}
 
 </ul>
