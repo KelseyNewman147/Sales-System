@@ -2,10 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Checkout</title>
     <LINK href="style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+{{#user}}
+<span> Hello, {{name}}! Are you ready to check out?</span>
+{{/user}}
+<form action="/checkout" method="get">
 
+</form>
+<span class="cart">These are the items that are currently in your cart:</span>
+<ul class="cart">
+    {{#item}}
+    <li>{{name}}</li>
+    <span>Quantity: {{quantity}}, Price: ${{price}} each</span>
+    {{/item}}
+</ul>
+<span>Subtotal: ${{subtotal}}</span>
+<br>
+<span>Total (with tax): ${{total}}</span>
+<br>
+<br>
+<span>Not ready to check out? Click <a href="/addToCart">here</a> to get back to shopping!</span>
 </body>
 </html>

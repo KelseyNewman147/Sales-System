@@ -4,8 +4,15 @@ font-family: Verdana, Geneva, sans-serif;
 font-size: 24px;
 color: #778899;
 }
+
 .note {
 font-family: Verdana, Geneva, sans-serif;
 font-size: 18px;
 color: #D3D3D3;
+}
+
+.cart {
+font-family: Verdana, Geneva, sans-serif;
+font-size: 20px;
+color: #808080;
 }

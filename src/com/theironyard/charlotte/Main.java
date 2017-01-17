@@ -15,7 +15,10 @@ import java.util.List;
 public class Main {
 
     private static void innerJoins(Connection conn, Integer userId) throws SQLException {
-        PreparedStatement stmt = conn.prepareStatement("Select * from users Inner join orders on users.id = orders.user_id Inner join items on items.order_id = orders.id Where user_id = ?");
+        PreparedStatement stmt = conn.prepareStatement("Select items.name as item_name, items.quantity, items.price, users.name, users.email, orders.id as order_id, orders.complete from users " +
+                " Inner join orders on users.id = orders.user_id" +
+                " Inner join items on items.order_id = orders.id" +
+                " Where user_id = ?");
         stmt.setInt(1, userId);
         stmt.execute();
     }
@@ -90,6 +93,16 @@ public class Main {
         return items;
     }
 
+    private static Double getSubtotalForItems(List<Item> items) throws SQLException {
+      Double itemCost;
+      Double subTotal = 0.0;
+        for (Item item : items) {
+            itemCost = item.getPrice() * item.getQuantity();
+            subTotal += itemCost;
+        }
+        return subTotal;
+    }
+
 
     public static void main(String[] args) throws SQLException{
         Server.createWebServer().start();
@@ -157,7 +170,6 @@ public class Main {
             HashMap model = new HashMap();
             Session session = req.session();
             User user = getUserById(conn, session.attribute("user_id"));
-            req.session().attribute("order_id");
             Order currentOrder = Order.getLatestCurrentOrder(conn, user.getId());
             if (currentOrder == null) {
                 Order.createOrder(conn, user.getId());
@@ -196,8 +208,29 @@ public class Main {
                 }
             }
 
-            res.redirect("/addToCart");
+            res.redirect("/checkout");
             return "";
         });
+
+        Spark.get("/checkout", ((req, res) -> {
+            HashMap model = new HashMap();
+            Session session = req.session();
+            User user = getUserById(conn, session.attribute("user_id"));
+            Order currentOrder = Order.getLatestCurrentOrder(conn, user.getId());
+            if (currentOrder == null) {
+                Order.createOrder(conn, user.getId());
+            } else {
+                List items = getItemsforCurrentOrder(conn, currentOrder.getId());
+                Double subtotal = getSubtotalForItems(items);
+                Double total = (subtotal*.07) + subtotal;
+                model.put("item", items);
+                model.put("subtotal", subtotal);
+                model.put("total", total);
+            }
+            model.put("user", user);
+
+            return new ModelAndView(model, "checkout.html");
+        }), new MustacheTemplateEngine());
+
     }
 }

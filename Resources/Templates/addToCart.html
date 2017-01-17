@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<div style = "float:left;width 50%;">
+<div style = "float:left;width 60%;">
 <h1>KelSave!</h1>
 <span class = "note">get cheap stuff for cheap</span>
 <br>
@@ -14,6 +14,8 @@
 {{#user}}
 <span>Hello, {{name}}!</span>
 {{/user}}
+    <br>
+    <span class = "cart">What would you like to add to your cart?</span>
 <form action="/addToCart" method="post">
     <input type="text" placeholder="Name of the item" name="name"/><br>
     <input type="text" placeholder="Quantity of the item" name="quantity"/><br>
@@ -22,15 +24,19 @@
 </form>
 </div>
 <br>
-<div style="float:right; width:50%;">
+<div class = "cart" style="float:right; width:40%;">
 <span>Items currently in your cart:</span>
 <ul>
     {{#item}}
 <li>{{name}}</li>
 <span>Quantity: {{quantity}}, Price: ${{price}} each</span>
     {{/item}}
-
 </ul>
+    <br>
+    <form method="get" action="/checkout">
+        <span>Ready to checkout?</span>
+        <button type="submit">Checkout</button>
+    </form>
 </div>
 </body>
 </html>
