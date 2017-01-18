@@ -1,6 +1,5 @@
 package com.theironyard.charlotte;
 
-
 import org.h2.tools.Server;
 import spark.ModelAndView;
 import spark.Session;
@@ -101,6 +100,12 @@ public class Main {
             subTotal += itemCost;
         }
         return subTotal;
+    }
+
+    private static void setCurrentOrderToComplete(Connection conn, Integer orderId) throws SQLException {
+            PreparedStatement stmt = conn.prepareStatement("update orders set complete = true where id = ?");
+            stmt.setInt(1, orderId);
+            stmt.executeUpdate();
     }
 
 
@@ -232,5 +237,36 @@ public class Main {
             return new ModelAndView(model, "checkout.html");
         }), new MustacheTemplateEngine());
 
+        Spark.post("/checkout", (req, res) -> {
+            Session session = req.session();
+            User user = getUserById(conn, session.attribute("user_id"));
+            Order currentOrder = Order.getLatestCurrentOrder(conn,user.getId());
+            setCurrentOrderToComplete(conn, currentOrder.getId());
+            Order.createOrder(conn, user.getId());
+
+            res.redirect("/submitOrder");
+            return "";
+        });
+
+        Spark.get("/submitOrder", ((req, res) -> {
+            HashMap model = new HashMap();
+            Session session = req.session();
+            User user = getUserById(conn, session.attribute("user_id"));
+            int randomNumber = (int)(Math.random()*2000);
+            model.put("user", user);
+            model.put("randomNumber", randomNumber);
+
+            return new ModelAndView(model, "submitOrder.html");
+        }), new MustacheTemplateEngine());
+
+        Spark.post(
+                "/logout",
+                ((request, response) -> {
+                    Session session = request.session();
+                    session.invalidate();
+                    response.redirect("/");
+                    return "";
+                })
+        );
     }
 }

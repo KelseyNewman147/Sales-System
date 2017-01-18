@@ -6,12 +6,11 @@
     <LINK href="style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+<div style = "float:left;width 90%;">
 {{#user}}
 <span> Hello, {{name}}! Are you ready to check out?</span>
 {{/user}}
-<form action="/checkout" method="get">
-
-</form>
+    <br>
 <span class="cart">These are the items that are currently in your cart:</span>
 <ul class="cart">
     {{#item}}
@@ -19,11 +18,22 @@
     <span>Quantity: {{quantity}}, Price: ${{price}} each</span>
     {{/item}}
 </ul>
-<span>Subtotal: ${{subtotal}}</span>
+<span class="cart">Subtotal: ${{subtotal}}</span>
 <br>
-<span>Total (with tax): ${{total}}</span>
+<span class="total">Total (with tax): ${{total}}</span>
+<form method="post" action="/checkout">
+    <button type="submit">Checkout</button>
+</form>
 <br>
 <br>
-<span>Not ready to check out? Click <a href="/addToCart">here</a> to get back to shopping!</span>
+<span class="cart">Not ready to check out? Click <a href="/addToCart">here</a> to get back to shopping!</span>
+    <br>
+    <br>
+</div>
+<div style = "float:right;width 10%;">
+<form action="/logout" method="post">
+    <button type="submit">Logout</button>
+</form>
+</div>
 </body>
 </html>

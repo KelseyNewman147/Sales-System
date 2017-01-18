@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+<div style="float:left; width:90%;">
+{{#user}}
+<h1>Thank you for your order, {{name}}!</h1>
+{{/user}}
+<span class="note">Your items will ship in approximately {{randomNumber}} days. </span>
+    <br>
+    <br>
+<span>Ready to do some more shopping? Click <a href="/">here</a> to be directed back to the homepage! </span>
+</div>
+<div style="float:right; width:10%;">
+    <form action="/logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+</body>
+</html>
