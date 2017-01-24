@@ -1,5 +1,6 @@
 package com.theironyard.charlotte;
 
+import com.theironyard.charlotte.utilities.PasswordStorage;
 import org.h2.tools.Server;
 import spark.ModelAndView;
 import spark.Session;
@@ -35,11 +36,13 @@ public class Main {
             if (results.next()) {
                 user = new User(id, results.getString("name"),
                         results.getString("email"),
+                        results.getString("password"),
                         results.getString("address"),
                         results.getString("paymentMethod"));
                 user.setOrders(getOrdersForUserId(conn, id));
             }
         }
+
         return user;
     }
 
@@ -56,20 +59,24 @@ public class Main {
         return orders;
     }
 
-    private static Integer getUserIdByEmail(Connection conn, String email) throws SQLException {
-        Integer userId = null;
+    private static User getUserByEmail(Connection conn, String email) throws SQLException, PasswordStorage.InvalidHashException, PasswordStorage.CannotPerformOperationException {
+        User user = null;
 
         if (email != null) {
             PreparedStatement stmt = conn.prepareStatement("select * from users where email = ?");
             stmt.setString(1, email);
-
             ResultSet results = stmt.executeQuery();
 
             if (results.next()) {
-                userId = results.getInt("id");
+                user = new User(results.getInt("id"),
+                        results.getString("name"),
+                        email,
+                        results.getString("password"),
+                        results.getString("address"),
+                        results.getString("paymentMethod"));
             }
         }
-        return userId;
+        return user;
     }
 
     private static List<Item> getItemsforCurrentOrder(Connection connection, Integer orderId) throws SQLException {
@@ -134,13 +141,18 @@ public class Main {
 
         Spark.post("/login", (req, res) -> {
             String email = req.queryParams("email");
+            String password = req.queryParams("password");
+            User user = getUserByEmail(conn, email);
 
-            Integer userID = getUserIdByEmail(conn, email);
+            PasswordStorage.verifyPassword(password, user.getPassword());
+            Integer userID = user.getId();
+
             if (userID != null) {
                 Session session = req.session();
                 session.attribute("user_id", userID);
             }
-            innerJoins(conn, userID);
+
+//            innerJoins(conn, userID);
             res.redirect("/addToCart");
             return "";
         });
@@ -158,15 +170,17 @@ public class Main {
             User currentUser = new User(
                     req.queryParams("name"),
                     req.queryParams("email"),
+                    req.queryParams("password"),
                     req.queryParams("address"),
                     req.queryParams("paymentMethod"));
             User.createUser(conn, currentUser);
-            Integer userId = getUserIdByEmail(conn, currentUser.getEmail());
+
+            Integer userId = getUserByEmail(conn, currentUser.getEmail()).getId();
             if (userId != null) {
                 Session session = req.session();
                 session.attribute("user_id", userId);
             }
-            innerJoins(conn, userId);
+//            innerJoins(conn, userId);
             res.redirect("/addToCart");
             return "";
         });

@@ -1,5 +1,7 @@
 package com.theironyard.charlotte;
 
+import com.theironyard.charlotte.utilities.PasswordStorage;
+
 import java.sql.*;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class User {
     Integer id;
     String name;
     String email;
+    String password;
     String address;
     String paymentMethod;
     List<Order> orders;
@@ -19,17 +22,19 @@ public class User {
     public User() {
     }
 
-    public User(String name, String email, String address, String paymentMethod) {
+    public User(String name, String email, String password, String address, String paymentMethod) {
         this.name = name;
         this.email = email;
+        this.password = password;
         this.address = address;
         this.paymentMethod = paymentMethod;
     }
 
-    public User(Integer id, String name, String email, String address, String paymentMethod) {
+    public User(Integer id, String name, String email, String password, String address, String paymentMethod) {
         this.id = id;
         this.name = name;
         this.email = email;
+        this.password = password;
         this.address = address;
         this.paymentMethod = paymentMethod;
     }
@@ -82,18 +87,27 @@ public class User {
         this.paymentMethod = paymentMethod;
     }
 
-    public static void createTable(Connection conn) throws SQLException {
-        Statement stmt = conn.createStatement();
-        stmt.execute("CREATE TABLE IF NOT EXISTS users (id IDENTITY, name VARCHAR, email VARCHAR, address VARCHAR, paymentMethod VARCHAR)");
+    public String getPassword() {
+        return password;
     }
 
-    public static void createUser(Connection conn, User user) throws SQLException {
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public static void createTable(Connection conn) throws SQLException {
+        Statement stmt = conn.createStatement();
+        stmt.execute("CREATE TABLE IF NOT EXISTS users (id IDENTITY, name VARCHAR, email VARCHAR, password VARCHAR, address VARCHAR, paymentMethod VARCHAR)");
+    }
+
+    public static void createUser(Connection conn, User user) throws SQLException, PasswordStorage.CannotPerformOperationException {
         //add a new user to list of users
-        PreparedStatement stmt = conn.prepareStatement("insert into users values (null, ?, ?, ?, ?)");
+        PreparedStatement stmt = conn.prepareStatement("insert into users values (null, ?, ?, ?, ?, ?)");
         stmt.setString(1, user.getName());
         stmt.setString(2, user.getEmail());
-        stmt.setString(3, user.getAddress());
-        stmt.setString(4, user.getPaymentMethod());
+        stmt.setString(3, PasswordStorage.createHash(user.getPassword()));
+        stmt.setString(4, user.getAddress());
+        stmt.setString(5, user.getPaymentMethod());
         stmt.execute();
     }
  }
