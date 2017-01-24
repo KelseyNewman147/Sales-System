@@ -144,7 +144,10 @@ public class Main {
             String password = req.queryParams("password");
             User user = getUserByEmail(conn, email);
 
-            PasswordStorage.verifyPassword(password, user.getPassword());
+            if (!PasswordStorage.verifyPassword(password, user.getPassword())) {
+                throw new Exception("Incorrect Password!");
+            }
+
             Integer userID = user.getId();
 
             if (userID != null) {
@@ -254,7 +257,7 @@ public class Main {
         Spark.post("/checkout", (req, res) -> {
             Session session = req.session();
             User user = getUserById(conn, session.attribute("user_id"));
-            Order currentOrder = Order.getLatestCurrentOrder(conn,user.getId());
+            Order currentOrder = Order.getLatestCurrentOrder(conn, user.getId());
             setCurrentOrderToComplete(conn, currentOrder.getId());
             Order.createOrder(conn, user.getId());
 
