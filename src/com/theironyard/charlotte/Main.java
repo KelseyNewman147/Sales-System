@@ -42,7 +42,6 @@ public class Main {
                 user.setOrders(getOrdersForUserId(conn, id));
             }
         }
-
         return user;
     }
 
@@ -59,7 +58,7 @@ public class Main {
         return orders;
     }
 
-    private static User getUserByEmail(Connection conn, String email) throws SQLException, PasswordStorage.InvalidHashException, PasswordStorage.CannotPerformOperationException {
+    private static User getUserByEmail(Connection conn, String email) throws SQLException {
         User user = null;
 
         if (email != null) {
@@ -100,8 +99,8 @@ public class Main {
     }
 
     private static Double getSubtotalForItems(List<Item> items) throws SQLException {
-      Double itemCost;
-      Double subTotal = 0.0;
+        Double itemCost;
+        Double subTotal = 0.0;
         for (Item item : items) {
             itemCost = item.getPrice() * item.getQuantity();
             subTotal += itemCost;
@@ -110,13 +109,13 @@ public class Main {
     }
 
     private static void setCurrentOrderToComplete(Connection conn, Integer orderId) throws SQLException {
-            PreparedStatement stmt = conn.prepareStatement("update orders set complete = true where id = ?");
-            stmt.setInt(1, orderId);
-            stmt.executeUpdate();
+        PreparedStatement stmt = conn.prepareStatement("update orders set complete = true where id = ?");
+        stmt.setInt(1, orderId);
+        stmt.executeUpdate();
     }
 
 
-    public static void main(String[] args) throws SQLException{
+    public static void main(String[] args) throws SQLException {
         Server.createWebServer().start();
         Connection conn = DriverManager.getConnection("jdbc:h2:./main");
         User.createTable(conn);
@@ -135,7 +134,7 @@ public class Main {
                 return new ModelAndView(model, "home.html");
             } else {
                 model.put("user", currentUser);
-            return new ModelAndView(model, "addToCart.html");
+                return new ModelAndView(model, "addToCart.html");
             }
         }), new MustacheTemplateEngine());
 
@@ -199,7 +198,7 @@ public class Main {
                 List items = getItemsforCurrentOrder(conn, currentOrder.getId());
                 model.put("item", items);
             }
-                model.put("user", user);
+            model.put("user", user);
 
             return new ModelAndView(model, "addToCart.html");
         }), new MustacheTemplateEngine());
@@ -218,8 +217,7 @@ public class Main {
                             Double.valueOf(req.queryParams("price")),
                             orderId);
                     Item.addItemToOrder(conn, item);
-                }
-                else {
+                } else {
                     int orderId = currentOrder.getId();
                     Item item = new Item(
                             req.queryParams("name"),
@@ -230,7 +228,7 @@ public class Main {
                 }
             }
 
-            res.redirect("/checkout");
+            res.redirect("/addToCart");
             return "";
         });
 
@@ -244,7 +242,7 @@ public class Main {
             } else {
                 List items = getItemsforCurrentOrder(conn, currentOrder.getId());
                 Double subtotal = getSubtotalForItems(items);
-                Double total = (subtotal*.07) + subtotal;
+                Double total = (subtotal * .07) + subtotal;
                 model.put("item", items);
                 model.put("subtotal", subtotal);
                 model.put("total", total);
@@ -269,7 +267,7 @@ public class Main {
             HashMap model = new HashMap();
             Session session = req.session();
             User user = getUserById(conn, session.attribute("user_id"));
-            int randomNumber = (int)(Math.random()*2000);
+            int randomNumber = (int) (Math.random() * 2000);
             model.put("user", user);
             model.put("randomNumber", randomNumber);
 
